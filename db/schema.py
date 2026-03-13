@@ -1,14 +1,16 @@
 from sqlalchemy import create_engine, Column, Integer, Float, String, DateTime, func
 from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 engine = create_engine("sqlite:///dht22.db")
+Session = sessionmaker(bind=engine)
 Base = declarative_base()
 
 class LeituraDHT22(Base):
     __tablename__ = "leituras"
 
     #Modelo para a base de dados.
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True,autoincrement=True)
     temperatura = Column(Float, nullable=False)
     umidade = Column(Float, nullable=False)
     device_id = Column(String, default="ESP32_01")
