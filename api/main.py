@@ -6,6 +6,7 @@ app = FastAPI()
 
 @app.get("/sensor-readings")
 
+#endpoint to retrieve all sensor readings with pagination and optional device_id filter
 def get_sensor_readings(limit: int = 100, offset: int = 0,device_id: Optional[str] = None):
     try:
         db = Session()
@@ -21,6 +22,7 @@ def get_sensor_readings(limit: int = 100, offset: int = 0,device_id: Optional[st
 
 @app.get("/last-reading")
 
+#endpoint to retrieve the last sensor reading for a specific device_id or the most recent reading if no device_id is provided
 def get_last_reading(device_id: Optional[str] = None):
     try:
         db = Session()
