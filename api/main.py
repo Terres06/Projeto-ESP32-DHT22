@@ -56,3 +56,14 @@ def get_average_reading(db = Depends(get_db), device_id: Optional[str] = None, i
         return {"average_temperature": avg_temp, "average_humidity": avg_humidity}
     except Exception as e:
         return {"error": str(e)}
+
+
+@app.get("/most-readings-device")
+#endpoint to retrieve the device_id with the most readings in the database
+def get_most_readings_device(db = Depends(get_db)):
+    try:
+        query = db.query(ReadDHT22)
+        most_readings_device = query.with_entities(func.count(ReadDHT22.device_id), ReadDHT22.device_id).group_by(ReadDHT22.device_id).order_by(func.count(ReadDHT22.device_id).desc()).first()
+        return {"most_read_device_id": most_readings_device[1], "readings_count": most_readings_device[0]} if most_readings_device else {"error": "No readings found in the database"}
+    except Exception as e:
+        return {"error": str(e)}
