@@ -134,12 +134,16 @@ Returns a paginated list of sensor readings with an optional device filter.
 | `limit` | int | 100 | Max number of records to return |
 | `offset` | int | 0 | Number of records to skip |
 | `device_id` | string | null | Filter by device ID |
+| `intervalo1` | datetime (ISO 8601) | null | Start datetime filter |
+| `intervalo2` | datetime (ISO 8601) | null | End datetime filter |
 
 **Examples:**
 ```
 GET /sensor-readings
 GET /sensor-readings?limit=10&offset=0
 GET /sensor-readings?device_id=ESP32_001
+GET /sensor-readings?intervalo1=2026-04-01T00:00:00&intervalo2=2026-04-06T23:59:59
+GET /sensor-readings?device_id=ESP32_001&intervalo1=2026-04-06T00:00:00&intervalo2=2026-04-06T23:59:59
 ```
 
 ---
