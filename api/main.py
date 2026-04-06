@@ -16,11 +16,13 @@ def get_db():
 @app.get("/sensor-readings")
 
 #endpoint to retrieve all sensor readings with pagination and optional device_id filter
-def get_sensor_readings(db = Depends(get_db), limit: int = 100, offset: int = 0, device_id: Optional[str] = None):
+def get_sensor_readings(db = Depends(get_db), limit: int = 100, offset: int = 0, device_id: Optional[str] = None, intervalo1: datetime = None, intervalo2: datetime = None):
     try:
         query = db.query(ReadDHT22)
         if device_id:
             query = query.filter(ReadDHT22.device_id == device_id)
+        if intervalo1 and intervalo2:
+            query = query.filter(ReadDHT22.timestamp.between(intervalo1, intervalo2))
         read = query.offset(offset).limit(limit).all()
         return [{k: v for k, v in reading.__dict__.items() if k != "_sa_instance_state"} for reading in read]
     except Exception as e:
