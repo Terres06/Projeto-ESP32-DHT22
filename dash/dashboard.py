@@ -2,7 +2,12 @@ from dash import Dash, html
 from cards.average_temperature import render_average_temperature
 from cards.most_readings_device import render_most_readings_device
 from graphs.temperature_over_time import render_temperature_over_time
+from datetime import datetime, timedelta
 import requests
+
+
+today = datetime.now()
+twenty_four_hours_ago = today - timedelta(hours=24)
 
 app = Dash(__name__)
 
@@ -13,7 +18,7 @@ avg_data = avg_response.json()
 most_response = requests.get("http://localhost:8000/most-readings-device")
 most_read_data = most_response.json()
 
-sensor_response = requests.get("http://localhost:8000/sensor-readings")
+sensor_response = requests.get(f"http://localhost:8000/sensor-readings/?intervalo1={twenty_four_hours_ago.isoformat()}&intervalo2={today.isoformat()}")
 sensor_readings = sensor_response.json()
 
 app.layout = html.Div(
