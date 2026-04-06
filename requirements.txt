@@ -1,0 +1,10 @@
+fastapi==0.135.2
+uvicorn==0.42.0
+sqlalchemy==2.0.48
+paho-mqtt==2.1.0
+python-dotenv==1.2.2
+dash==4.1.0
+plotly==6.6.0
+numpy==2.4.4
+pandas==3.0.2
+requests==2.32.5
