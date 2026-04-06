@@ -28,8 +28,8 @@ Designed to demonstrate skills relevant to firmware and backend engineering role
 | Database schema | ✅ Done |
 | MQTT subscriber | ✅ Done |
 | REST API | ✅ Done |
-| Dashboard | 🔄 In progress |
-| ESP32 firmware | ⏳ Pending |
+| Dashboard | ✅ Done |
+| ESP32 firmware | ⏳ Next step |
 
 ---
 
@@ -84,6 +84,8 @@ Python Subscriber ──► SQLite (dht22.db)
 
 ## Project Structure
 
+Current repository:
+
 ```
 Projeto-ESP32-DHT22/
 ├── db/
@@ -95,16 +97,29 @@ Projeto-ESP32-DHT22/
 ├── api/
 │   ├── __init__.py
 │   └── main.py            # FastAPI REST API
-├── dashboard/
-│   └── (in progress)
-├── firmware/
-│   ├── src/
-│   │   └── main.cpp       # ESP32 firmware (pending)
-│   └── platformio.ini
+├── dash/
+│   ├── dashboard.py       # Dash app entrypoint
+│   ├── cards/
+│   │   ├── average_temperature.py
+│   │   └── most_readings_device.py
+│   └── graphs/
+│       └── temperature_over_time.py
+├── simulator/
+│   └── fake_esp32.py      # MQTT publisher to simulate ESP32 data
 ├── .env                   # Not versioned
 ├── .gitignore
 ├── requirements.txt
 └── README.md
+```
+
+Planned next stage (firmware):
+
+```
+Projeto-ESP32-DHT22/
+└── firmware/
+     ├── src/
+     │   └── main.cpp       # ESP32 firmware entrypoint
+     └── platformio.ini
 ```
 
 ---
@@ -140,6 +155,34 @@ Returns the most recent sensor reading, optionally filtered by device.
 ```
 GET /last-reading
 GET /last-reading?device_id=ESP32_001
+```
+
+---
+
+### `GET /average-reading`
+Returns average temperature and humidity. By default, uses the last 30 days.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `device_id` | string | null | Filter by device ID |
+| `intervalo1` | datetime (ISO 8601) | null | Start datetime filter |
+| `intervalo2` | datetime (ISO 8601) | now | End datetime filter |
+
+**Examples:**
+```
+GET /average-reading
+GET /average-reading?device_id=ESP32_001
+GET /average-reading?intervalo1=2026-04-01T00:00:00&intervalo2=2026-04-06T23:59:59
+```
+
+---
+
+### `GET /most-readings-device`
+Returns the device with the highest number of readings in the database.
+
+**Example:**
+```
+GET /most-readings-device
 ```
 
 ---
@@ -193,9 +236,7 @@ source venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Create .env file
-cp .env.example .env
-# Edit .env with your broker credentials
+# Create .env file manually and fill broker credentials
 ```
 
 ### Create the database
@@ -217,6 +258,22 @@ uvicorn api.main:app --reload
 ```
 
 API docs available at: `http://127.0.0.1:8000/docs`
+
+### Start the Dashboard
+
+```bash
+python dash/dashboard.py
+```
+
+Dashboard available at: `http://127.0.0.1:8050`
+
+### Optional: Run ESP32 simulator publisher
+
+Use this while firmware is still pending.
+
+```bash
+python simulator/fake_esp32.py
+```
 
 ---
 
