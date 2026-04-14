@@ -1,0 +1,10 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir paho-mqtt sqlalchemy python-dotenv
+
+COPY db/ ./db/
+COPY mqtt/ ./mqtt/
+
+CMD ["python", "-m", "mqtt.subscriber"]

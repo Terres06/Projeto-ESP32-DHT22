@@ -1,0 +1,49 @@
+services:
+  broker:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.broker
+    container_name: projeto_esp32_broker
+    ports:
+      - "1883:1883"
+
+  subscriber:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.subscriber
+    container_name: projeto_esp32_subscriber
+    env_file:
+      - ../.env
+    environment:
+      MQTT_BROKER: broker
+      MQTT_PORT: 1883
+    volumes:
+      - ../dht22.db:/app/dht22.db
+    depends_on:
+      - broker
+
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    container_name: projeto_esp32_api
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../.env
+    volumes:
+      - ../dht22.db:/app/dht22.db
+
+  dash:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dash
+    container_name: projeto_esp32_dash
+    ports:
+      - "8050:8050"
+    env_file:
+      - ../.env
+    environment:
+      API_BASE_URL: http://api:8000
+    depends_on:
+      - api
