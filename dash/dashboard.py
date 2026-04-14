@@ -4,6 +4,12 @@ from cards.most_readings_device import render_most_readings_device
 from graphs.temperature_over_time import render_temperature_over_time
 from datetime import datetime, timedelta
 import requests
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+api_base_url = os.getenv("API_BASE_URL")
 
 
 today = datetime.now()
@@ -12,13 +18,13 @@ twenty_four_hours_ago = today - timedelta(hours=24)
 app = Dash(__name__)
 
 #get data from API
-avg_response = requests.get("http://localhost:8000/average-reading")
+avg_response = requests.get(f"{api_base_url}/average-reading")
 avg_data = avg_response.json()
 
-most_response = requests.get("http://localhost:8000/most-readings-device")
+most_response = requests.get(f"{api_base_url}/most-readings-device")
 most_read_data = most_response.json()
 
-sensor_response = requests.get(f"http://localhost:8000/sensor-readings/?intervalo1={twenty_four_hours_ago.isoformat()}&intervalo2={today.isoformat()}")
+sensor_response = requests.get(f"{api_base_url}/sensor-readings/?intervalo1={twenty_four_hours_ago.isoformat()}&intervalo2={today.isoformat()}")
 sensor_readings = sensor_response.json()
 
 app.layout = html.Div(
@@ -45,4 +51,4 @@ app.layout = html.Div(
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
