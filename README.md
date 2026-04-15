@@ -55,6 +55,12 @@ Python Subscriber ──► SQLite (dht22.db)
                       Plotly Dash (Dashboard)
 ```
 
+Containerized stack:
+
+```
+broker (Mosquitto) -> subscriber (Python) -> SQLite (dht22.db) -> api (FastAPI) -> dash (Plotly Dash)
+```
+
 ---
 
 ## Design Decisions
@@ -93,22 +99,35 @@ Projeto-ESP32-DHT22/
 │   └── schema.py          # ReadDHT22 ORM model + SQLite setup
 ├── mqtt/
 │   ├── __init__.py
-│   └── subscriber.py      # MQTT subscriber + DB persistence
+│   ├── subscriber.py      # MQTT subscriber + DB persistence
+│   └── requirements.txt   # MQTT dependencies
 ├── api/
 │   ├── __init__.py
-│   └── main.py            # FastAPI REST API
+│   ├── main.py            # FastAPI REST API
+│   └── requirements.txt   # API dependencies
 ├── dash/
+│   ├── __init__.py
 │   ├── dashboard.py       # Dash app entrypoint
+│   ├── requirements.txt   # Dashboard dependencies
 │   ├── cards/
+│   │   ├── __init__.py
 │   │   ├── average_temperature.py
 │   │   └── most_readings_device.py
 │   └── graphs/
+│       ├── __init__.py
 │       └── temperature_over_time.py
 ├── simulator/
 │   └── fake_esp32.py      # MQTT publisher to simulate ESP32 data
+├── docker/
+│   ├── Dockerfile.api
+│   ├── Dockerfile.dash
+│   ├── Dockerfile.broker
+│   ├── Dockerfile.subscriber
+│   ├── mosquitto.conf
+│   └── docker-compose.yml
 ├── .env                   # Not versioned
 ├── .gitignore
-├── requirements.txt
+├── requirements.txt 
 └── README.md
 ```
 
@@ -141,9 +160,9 @@ Returns a paginated list of sensor readings with an optional device filter.
 ```
 GET /sensor-readings
 GET /sensor-readings?limit=10&offset=0
-GET /sensor-readings?device_id=ESP32_001
+GET /sensor-readings?device_id=ESP32_01
 GET /sensor-readings?intervalo1=2026-04-01T00:00:00&intervalo2=2026-04-06T23:59:59
-GET /sensor-readings?device_id=ESP32_001&intervalo1=2026-04-06T00:00:00&intervalo2=2026-04-06T23:59:59
+GET /sensor-readings?device_id=ESP32_01&intervalo1=2026-04-06T00:00:00&intervalo2=2026-04-06T23:59:59
 ```
 
 ---
@@ -158,7 +177,7 @@ Returns the most recent sensor reading, optionally filtered by device.
 **Examples:**
 ```
 GET /last-reading
-GET /last-reading?device_id=ESP32_001
+GET /last-reading?device_id=ESP32_01
 ```
 
 ---
@@ -175,7 +194,7 @@ Returns average temperature and humidity. By default, uses the last 30 days.
 **Examples:**
 ```
 GET /average-reading
-GET /average-reading?device_id=ESP32_001
+GET /average-reading?device_id=ESP32_01
 GET /average-reading?intervalo1=2026-04-01T00:00:00&intervalo2=2026-04-06T23:59:59
 ```
 
@@ -219,6 +238,40 @@ The ESP32 publishes to the topic `sensors/dht22` with the following JSON structu
 ---
 
 ## How to Run
+
+### Option 1: Docker Compose (recommended)
+
+This starts the full stack: Mosquitto broker, MQTT subscriber, FastAPI and Dash.
+
+#### Prerequisites
+
+- Docker
+- Docker Compose
+
+#### Steps
+
+```bash
+# Clone the repository
+git clone https://github.com/Terres06/Projeto-ESP32-DHT22.git
+cd Projeto-ESP32-DHT22
+
+# Create .env file manually
+# You can keep username/password empty for local tests
+
+# Create SQLite file used by api/subscriber bind mount
+touch dht22.db
+
+# Start all services
+docker compose -f docker/docker-compose.yml up --build
+```
+
+Services:
+
+- API docs: http://127.0.0.1:8000/docs
+- Dashboard: http://127.0.0.1:8050
+- MQTT broker: localhost:1883
+
+### Option 2: Local Python setup
 
 ### Prerequisites
 
@@ -289,7 +342,13 @@ MQTT_PORT=1883
 MQTT_USERNAME=
 MQTT_PASSWORD=
 MQTT_CLIENT_ID=python_subscriber
+API_BASE_URL=http://localhost:8000
 ```
+
+Notes:
+
+- In Docker Compose, subscriber uses MQTT_BROKER=broker automatically.
+- In Docker Compose, dashboard uses API_BASE_URL=http://api:8000 automatically.
 
 ---
 
