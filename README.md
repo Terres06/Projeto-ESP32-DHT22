@@ -29,7 +29,7 @@ Designed to demonstrate skills relevant to firmware and backend engineering role
 | MQTT subscriber | ✅ Done |
 | REST API | ✅ Done |
 | Dashboard | ✅ Done |
-| ESP32 firmware | ⏳ Next step |
+| ESP32 firmware | ✅ Done |
 
 ---
 
@@ -94,6 +94,8 @@ Current repository:
 
 ```
 Projeto-ESP32-DHT22/
+├── README.md
+├── requirements.txt
 ├── db/
 │   ├── __init__.py
 │   └── schema.py          # ReadDHT22 ORM model + SQLite setup
@@ -125,20 +127,39 @@ Projeto-ESP32-DHT22/
 │   ├── Dockerfile.subscriber
 │   ├── mosquitto.conf
 │   └── docker-compose.yml
+├── Firmware/
+│   ├── platformio.ini
+│   ├── include/
+│   │   ├── config.example.h
+│   ├── src/
+│   │   └── main.cpp       # ESP32 firmware entrypoint
 ├── .env                   # Not versioned
 ├── .gitignore
 ├── requirements.txt 
 └── README.md
 ```
 
-Planned next stage (firmware):
+## Firmware
 
 ```
-Projeto-ESP32-DHT22/
-└── firmware/
-     ├── src/
-     │   └── main.cpp       # ESP32 firmware entrypoint
-     └── platformio.ini
+Firmware/
+├── platformio.ini
+├── Projeto-ESP32-DHT22.code-workspace
+├── include/
+│   ├── config.example.h
+├── src/
+│   └── main.cpp
+```
+
+The firmware uses PlatformIO with the Arduino framework. Before building, copy `Firmware/include/config.example.h` to `Firmware/include/config.h` and fill in the Wi-Fi and MQTT settings.
+
+### Build and upload
+
+```bash
+cd Firmware
+pio run
+pio run --target upload
+pio device monitor
 ```
 
 ---
