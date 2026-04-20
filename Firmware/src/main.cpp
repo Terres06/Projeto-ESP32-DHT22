@@ -45,6 +45,8 @@ bool reconnect(){
   }
 } 
 
+unsigned long lastPublishAttempt = 0;
+
 void readAndPublish(){
   float humidity = dht.readHumidity();
   float temperature = dht.readTemperature();
@@ -53,26 +55,29 @@ void readAndPublish(){
     Serial.println("Failed to read from DHT sensor!");
     return;
   }
+  unsigned long now = millis();
 
-  JsonDocument doc;
-  doc["humidity"] = humidity;
-  doc["temperature"] = temperature;
-  doc["device_id"] = DEVICE_ID;
-  char jsonBuffer[200];
-  serializeJson(doc, jsonBuffer);
-  
-  if(client.publish(MQTT_TOPIC, jsonBuffer)){
-    Serial.println("Data published to MQTT");
-  }else{
-    Serial.println("Failed to publish data to MQTT");
+  if(now - lastPublishAttempt > 5000){    
+    lastPublishAttempt = now;
+    JsonDocument doc;
+    doc["humidity"] = humidity;
+    doc["temperature"] = temperature;
+    doc["device_id"] = DEVICE_ID;
+    char jsonBuffer[200];
+    serializeJson(doc, jsonBuffer);
+    
+    if(client.publish(MQTT_TOPIC, jsonBuffer)){
+      Serial.println("Data published to MQTT");
+    }else{
+      Serial.println("Failed to publish data to MQTT");
+    }
   }
-  
-}
+}  
+
 
 void loop(){
   if(reconnect()){
     readAndPublish();
   }
   client.loop();
-  delay(1500);
 }
