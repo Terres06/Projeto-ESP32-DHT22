@@ -29,7 +29,7 @@ bool reconnect(){
     if (now - lastReconnectAttempt > 5000) {
       lastReconnectAttempt = now;
       Serial.println("Connecting to MQTT...");
-      if(client.connect(DEVICE_ID)){
+      if(client.connect(CLIENT_ID)){
         Serial.println("Connected to MQTT");
         return true;
       }else{
